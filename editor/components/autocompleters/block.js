@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { sortBy, once } from 'lodash';
+import { sortBy } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { createBlock, getBlockTypes } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -23,21 +24,32 @@ export default {
 	name: 'blocks',
 	className: 'editor-autocompleters__block',
 	triggerPrefix: '/',
-	options: once( function options() {
-		return Promise.resolve(
-			// Prioritize common category in block type options
-			sortBy(
-				getBlockTypes(),
-				( { category } ) => 'common' !== category
-			)
-		);
-	} ),
-	getOptionKeywords( blockSettings ) {
-		const { title, keywords = [] } = blockSettings;
+	options( query ) {
+		const {
+			getEditorSettings,
+			getBlockInsertionPoint,
+			getSupportedBlocks,
+			getFrecentInserterItems,
+			getInserterItems,
+		} = select( 'core/editor' );
+
+		const { allowedBlockTypes } = getEditorSettings();
+		const { rootUID } = getBlockInsertionPoint();
+		const supportedBlocks = getSupportedBlocks( rootUID, allowedBlockTypes );
+
+		const isInitialQuery = ! query;
+		const inserterItems = isInitialQuery ?
+			// Before we have a query, offer frecent blocks as a sensible default.
+			getFrecentInserterItems( supportedBlocks ) :
+			getInserterItems( supportedBlocks );
+		return sortBy( inserterItems, ( { category } ) => 'common' !== category );
+	},
+	getOptionKeywords( inserterItem ) {
+		const { title, keywords = [] } = inserterItem;
 		return [ ...keywords, title ];
 	},
-	getOptionLabel( blockSettings ) {
-		const { icon, title } = blockSettings;
+	getOptionLabel( inserterItem ) {
+		const { icon, title } = inserterItem;
 		return [
 			<BlockIcon key="icon" icon={ icon } />,
 			title,
@@ -46,10 +58,11 @@ export default {
 	allowContext( before, after ) {
 		return ! ( /\S/.test( before.toString() ) || /\S/.test( after.toString() ) );
 	},
-	getOptionCompletion( blockData ) {
+	getOptionCompletion( inserterItem ) {
+		const { name, initialAttributes } = inserterItem;
 		return {
 			action: 'replace',
-			value: createBlock( blockData.name ),
+			value: createBlock( name, initialAttributes ),
 		};
 	},
 };
