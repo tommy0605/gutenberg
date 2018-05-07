@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { filter, isEmpty } from 'lodash';
+import { reject, isEmpty, orderBy, flow } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -18,18 +18,30 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import BlockIcon from '../block-icon';
 import './style.scss';
 
+function filterItems( items ) {
+	return reject( items, ( item ) =>
+		item.name === getDefaultBlockName() && isEmpty( item.initialAttributes )
+	);
+}
+
+function orderItems( items ) {
+	return orderBy( items, [ 'utility', 'frecency' ], [ 'desc', 'desc' ] );
+}
+
+function limitItems( items ) {
+	return items.slice( 0, 3 );
+}
+
 function InserterWithShortcuts( { items, isLocked, onInsert } ) {
 	if ( isLocked ) {
 		return null;
 	}
 
-	const itemsWithoutDefaultBlock = filter( items, ( item ) =>
-		item.name !== getDefaultBlockName() || ! isEmpty( item.initialAttributes )
-	).slice( 0, 3 );
+	const bestItems = flow( filterItems, orderItems, limitItems )( items );
 
 	return (
 		<div className="editor-inserter-with-shortcuts">
-			{ itemsWithoutDefaultBlock.map( ( item ) => (
+			{ bestItems.map( ( item ) => (
 				<IconButton
 					key={ item.id }
 					className="editor-inserter-with-shortcuts__block"
@@ -46,11 +58,10 @@ function InserterWithShortcuts( { items, isLocked, onInsert } ) {
 
 export default compose(
 	withSelect( ( select, { rootUID } ) => {
-		const { getEditorSettings, getFrecentInserterItems, getSupportedBlocks } = select( 'core/editor' );
+		const { getEditorSettings, getInserterItems } = select( 'core/editor' );
 		const { templateLock, allowedBlockTypes } = getEditorSettings();
-		const supportedBlocks = getSupportedBlocks( rootUID, allowedBlockTypes );
 		return {
-			items: getFrecentInserterItems( supportedBlocks, 4 ),
+			items: getInserterItems( allowedBlockTypes, rootUID ),
 			isLocked: !! templateLock,
 		};
 	} ),
