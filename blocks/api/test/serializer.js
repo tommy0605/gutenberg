@@ -8,7 +8,6 @@ import { createElement, Component } from '@wordpress/element';
  */
 import serialize, {
 	getCommentAttributes,
-	getBeautifulContent,
 	getSaveContent,
 	serializeAttributes,
 	getCommentDelimitedContent,
@@ -37,14 +36,6 @@ describe( 'block serializer', () => {
 		setUnknownTypeHandlerName( undefined );
 		getBlockTypes().forEach( ( block ) => {
 			unregisterBlockType( block.name );
-		} );
-	} );
-
-	describe( 'getBeautifulContent()', () => {
-		it( 'returns beautiful content', () => {
-			const content = getBeautifulContent( '<div><div>Beautiful</div></div>' );
-
-			expect( content ).toBe( '<div>\n\t<div>Beautiful</div>\n</div>' );
 		} );
 	} );
 
@@ -157,9 +148,11 @@ describe( 'block serializer', () => {
 				);
 
 				expect( saved ).toBe(
-					'<div>Bananas<!-- wp:fruit {"fruit":"Apples"} -->\n' +
-					'<div>Apples</div>\n' +
-					'<!-- /wp:fruit --></div>'
+					'<div>Bananas\n' +
+					'\t<!-- wp:fruit {"fruit":"Apples"} -->\n' +
+					'\t<div>Apples</div>\n' +
+					'\t<!-- /wp:fruit -->\n' +
+					'</div>'
 				);
 			} );
 		} );
@@ -420,11 +413,11 @@ describe( 'block serializer', () => {
 			const block =	{
 				name: 'core/chicken',
 				attributes: {
-					content: 'chicken',
+					content: 'chicken\nribs',
 				},
 				isValid: true,
 			};
-			expect( getBlockContent( block ) ).toBe( 'chicken' );
+			expect( getBlockContent( block ) ).toBe( 'chicken\nribs' );
 		} );
 	} );
 } );

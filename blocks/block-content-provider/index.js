@@ -9,6 +9,18 @@ import { Component, RawHTML } from '@wordpress/element';
 import { serialize } from '../api';
 
 /**
+ * Given a string, indents it by one tab space. Empty strings or new lines
+ * without any other text are not indented.
+ *
+ * @param {string} string Original content.
+ *
+ * @return {string} Indented content.
+ */
+export function getIndentedContent( string ) {
+	return string.replace( /(.*\S)/g, '\t$1' );
+}
+
+/**
  * An internal block component used in block content serialization to inject
  * nested block content within the `save` implementation of the ancestor
  * component in which it is nested. The component provides a pre-bound
@@ -33,7 +45,7 @@ class BlockContentProvider extends Component {
 				const html = serialize( innerBlocks );
 
 				// Use special-cased raw HTML tag to avoid default escaping
-				return <RawHTML>{ html }</RawHTML>;
+				return <RawHTML>{ html ? '\n' + getIndentedContent( html ) : '' }</RawHTML>;
 			},
 		};
 	}
