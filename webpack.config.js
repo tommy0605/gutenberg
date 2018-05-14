@@ -26,6 +26,11 @@ const blocksCSSPlugin = new ExtractTextPlugin( {
 	filename: './build/core-blocks/style.css',
 } );
 
+// CSS loader for default visual block styles available to themes.
+const themeBlocksCSSPlugin = new ExtractTextPlugin( {
+	filename: './build/core-blocks/theme.css',
+} );
+
 // Configuration for the ExtractTextPlugin.
 const extractConfig = {
 	use: [
@@ -171,6 +176,13 @@ const config = {
 				use: editBlocksCSSPlugin.extract( extractConfig ),
 			},
 			{
+				test: /theme\.s?css$/,
+				include: [
+					/core-blocks/,
+				],
+				use: themeBlocksCSSPlugin.extract( extractConfig ),
+			},
+			{
 				test: /\.s?css$/,
 				exclude: [
 					/core-blocks/,
@@ -182,6 +194,7 @@ const config = {
 	plugins: [
 		blocksCSSPlugin,
 		editBlocksCSSPlugin,
+		themeBlocksCSSPlugin,
 		mainCSSExtractTextPlugin,
 		// Create RTL files with a -rtl suffix
 		new WebpackRTLPlugin( {
