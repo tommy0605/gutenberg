@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { get, isFunction, some } from 'lodash';
+import { get, isFunction, some, pick, omit, mapValues } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -137,7 +137,19 @@ export function registerBlockType( name, settings ) {
 		settings.icon = 'block-default';
 	}
 
-	dispatch( 'core/blocks' ).addBlockTypes( settings );
+	const blockTypeDefinition = omit( settings, [ 'transforms', 'edit', 'save', 'icon', 'getEditWrapperProps' ] );
+	blockTypeDefinition.attributes = mapValues(
+		settings.attributes,
+		( attribute ) => pick( attribute, [ 'type', 'default' ] )
+	);
+	const blockTypeImplementation = pick( settings, [ 'name', 'transforms', 'edit', 'save', 'icon', 'getEditWrapperProps' ] );
+	blockTypeImplementation.attributes = mapValues(
+		settings.attributes,
+		( attribute ) => omit( attribute, [ 'type', 'default' ] )
+	);
+
+	dispatch( 'core/blocks' ).addBlockTypes( blockTypeDefinition );
+	dispatch( 'core/blocks' ).implementBlockTypes( blockTypeImplementation );
 
 	return settings;
 }
