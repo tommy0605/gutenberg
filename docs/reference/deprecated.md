@@ -4,6 +4,9 @@ Gutenberg's deprecation policy is intended to support backwards-compatibility fo
 
  - All components in `wp.blocks.*` are removed. Please use `wp.editor.*` instead.
  - `wp.blocks.withEditorSettings` is removed. Please use the data module to access the editor settings `wp.data.select( "core/editor" ).getEditorSettings()`.
+- `getInserterItems`: The `allowedBlockTypes` argument was removed and the `parentUID` argument was added.
+- `getFrecentInserterItems` selector removed. Please use `getInserterItems` instead.
+- `getSupportedBlocks` selector removed. Please use `canInsertBlockType` instead.
 
 ## 3.0.0
 
