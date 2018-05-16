@@ -1229,9 +1229,15 @@ export const canInsertBlockType = createSelector(
 			return false;
 		}
 
-		const editorAllowedBlocks = getEditorSettings( state ).allowedBlockTypes;
-		const isBlockAllowedInEditor = checkAllowList( editorAllowedBlocks, blockName, true );
+		const { allowedBlockTypes, templateLock } = getEditorSettings( state );
+
+		const isBlockAllowedInEditor = checkAllowList( allowedBlockTypes, blockName, true );
 		if ( ! isBlockAllowedInEditor ) {
+			return false;
+		}
+
+		const isEditorLocked = !! templateLock;
+		if ( isEditorLocked ) {
 			return false;
 		}
 
@@ -1264,6 +1270,7 @@ export const canInsertBlockType = createSelector(
 		state.blockListSettings[ parentUID ],
 		state.editor.present.blocksByUID[ parentUID ],
 		state.settings.allowedBlockTypes,
+		state.settings.templateLock,
 	],
 );
 
@@ -1461,6 +1468,7 @@ export const getInserterItems = createSelector(
 		state.editor.present.blocksByUID,
 		state.preferences.insertUsage,
 		state.settings.allowedBlockTypes,
+		state.settings.templateLock,
 		state.sharedBlocks.data,
 	],
 );

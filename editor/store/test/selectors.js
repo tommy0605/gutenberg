@@ -2681,6 +2681,21 @@ describe( 'selectors', () => {
 			expect( canInsertBlockType( state, 'core/test-block-a' ) ).toBe( true );
 		} );
 
+		it( 'should deny blocks when the editor has a template lock', () => {
+			const state = {
+				editor: {
+					present: {
+						blocksByUID: {},
+					},
+				},
+				blockListSettings: {},
+				settings: {
+					templateLock: 'all',
+				},
+			};
+			expect( canInsertBlockType( state, 'core/test-block-a' ) ).toBe( false );
+		} );
+
 		it( 'should deny blocks that restrict allowedParentBlocks from being inserted into the root', () => {
 			const state = {
 				editor: {
