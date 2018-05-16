@@ -361,6 +361,13 @@ function gutenberg_register_scripts_and_styles() {
 
 	// Editor Styles.
 	wp_register_style(
+		'wp-blocks',
+		gutenberg_url( 'build/blocks/style.css' ),
+		array(),
+		filemtime( gutenberg_dir_path() . 'build/blocks/style.css' )
+	);
+
+	wp_register_style(
 		'wp-editor-font',
 		'https://fonts.googleapis.com/css?family=Noto+Serif:400,400i,700,700i'
 	);
