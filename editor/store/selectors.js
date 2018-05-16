@@ -1263,7 +1263,7 @@ export const canInsertBlockType = createSelector(
 	( state, blockName, parentUID ) => [
 		state.blockListSettings[ parentUID ],
 		state.editor.present.blocksByUID[ parentUID ],
-		state.settings,
+		state.settings.allowedBlockTypes,
 	],
 );
 
@@ -1322,7 +1322,7 @@ function getInsertUsage( state, id ) {
 export const getInserterItems = createSelector(
 	( state, parentUID = null ) => {
 		/**
-		 * The second argument used to be {boolean|array} allowedBlockTypes but is no
+		 * The second argument used to be {boolean|array} allowedBlockTypes but it is no
 		 * longer necessary.
 		 */
 		if ( isBoolean( parentUID ) || isArray( parentUID ) ) {
@@ -1460,7 +1460,7 @@ export const getInserterItems = createSelector(
 		state.editor.present.blockOrder,
 		state.editor.present.blocksByUID,
 		state.preferences.insertUsage,
-		state.settings,
+		state.settings.allowedBlockTypes,
 		state.sharedBlocks.data,
 	],
 );
